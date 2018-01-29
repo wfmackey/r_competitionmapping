@@ -1,0 +1,24 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1517215694455.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "FA168627",
+    "lastKnownWriteTime" : 1517229311,
+    "last_content_update" : 1517230650641,
+    "path" : "~/Google Drive/r_competitionmapping/Competition Mapping/competition_mapping.Rmd",
+    "project_path" : "competition_mapping.Rmd",
+    "properties" : {
+        "cursorPosition" : "78,80",
+        "last_setup_crc32" : "1BEB0E84bb338d19",
+        "scrollLine" : "68",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1517221948454.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "9AAE5428",
+    "lastKnownWriteTime" : 4534455920,
+    "last_content_update" : 1517221948454,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "id" : "7ade3a24fd154eb89a96e313127b3966",
+        "name" : "nearby",
+        "title" : "nearby"
+    },
+    "relative_order" : 12,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "object_explorer"
+}

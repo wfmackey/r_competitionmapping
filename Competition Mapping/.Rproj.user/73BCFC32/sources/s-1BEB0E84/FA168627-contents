@@ -1,0 +1,194 @@
+---
+title: "Competition Mapping"
+author: "Will Mackey"
+date: "29/01/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+The goal of this project is to explore the possibilities of competition mapping using `R` for a hospitality business in Federation Square, Melbourne. This has two elements:  
+  1. Generating data of hospitality businesses near Federation Square using `Google Places API`
+  2. Mapping the data generated in an insightful way.  
+
+These will be presented below after some initial set up.
+
+## Set up
+*Install R and R Rtudio
+*Install required packages
+
+```
+install.packages("googleway")
+install.packages("ggplot2")
+install.packages("ggmap")
+install.packages("dplyr")
+```
+
+## Gathering data
+Google has functionality to search for ``nearby places''. They also allow their API to be searched, meaning we can gather and store the data returned in bulk (*I think this might be against their terms of service, but we'll keep that between us*). A very kind person by the name of David Cooley has built an R package that assists this process. It looks like: 
+```
+google_places(search_string = NULL, location = NULL, radar = FALSE,
+  radius = NULL, rankby = NULL, keyword = NULL, language = NULL,
+  name = NULL, place_type = NULL, price_range = NULL, open_now = NULL,
+  page_token = NULL, simplify = TRUE, key)
+```
+
+The full set of options can be explored at the [documentation page](https://www.rdocumentation.org/packages/googleway/versions/2.2.0/topics/google_places)
+
+
+```{r data.option1, echo=TRUE}
+##playing with google places via googleway
+
+library("googleway")
+key <- 'AIzaSyBd0Usn4qdFPCIY92EgOifNI87vxqUmy8g'
+key <- 'AIzaSyB2ZSMoJ3GqvgumLDGrYATgaOoyW3yIFa0'
+fedsq <- c(-37.8180,144.9691)
+radius <- c(500) #radius is in meters
+rank <- c("distance")   #"distance" or "prominence"
+
+
+#Option 1: Radius and keywords
+type <- c("Restaurant")
+nearby.bar <- google_places(location = fedsq,
+                     keyword = type,
+                     radius = radius,
+                     rankby = rank,
+                     key = key)
+
+master <- cbind(nearby.bar$results$name,nearby.bar$results$geometry$location,nearby.bar$results$rating,nearby.bar$results$vicinity)
+
+for (loop in 1:2) {
+  print(loop)
+  nearby.bar <- google_places(location = fedsq,
+                        keyword = type,
+                        radius = radius,
+                        page_token = nearby.bar$next_page_token,
+                        key = key)
+comb <- cbind(nearby.bar$results$name,nearby.bar$results$geometry$location,nearby.bar$results$rating,nearby.bar$results$vicinity)
+master <- rbind(master, comb)
+}
+
+print(master)
+
+```
+
+Woah, well that didn't seem to work. A lot of hotels in there and not much else.
+
+```{r data.option2}
+library("googleway")
+key <- 'AIzaSyBd0Usn4qdFPCIY92EgOifNI87vxqUmy8g'
+fedsq <- c(-37.8180,144.9691)
+keywordset <- c("restaurants","bars","cafes", "food and drink", "food")
+radius <- 1500
+resultnumber <- 60
+
+sleepbtw <- 3         #the Google Places API gets a bit fussy if you push it to move too quickly. This is the number of seconds pause between                       each loop
+
+
+#####Program runs below according to the settings above
+count = 0
+for (keyword in keywordset) {
+count = count + 1
+search.term <- paste("",keyword," within ",radius,"m of federation square","")
+print(search.term)  #this is what our search term will look like
+
+nearby <- google_places(search_string = search.term, 
+              key = key)
+
+loopmaster <- cbind(nearby$results$name, nearby$results$formatted_address, nearby$results$rating, nearby$results$geometry$location)
+
+
+for (loop in 2:(resultnumber/20)) {
+   
+  print(paste(loop," out of ",resultnumber/20," for ",keyword," search"))     #print during loop so we know where we are
+   
+  nearby <- google_places(search_string = search.term, 
+                            page_token = nearby.bar$next_page_token,
+                            key = key)
+    
+    comb <- cbind(nearby$results$name, nearby$results$formatted_address, nearby$results$rating, nearby$results$geometry$location)
+    loopmaster <- rbind(loopmaster, comb)
+
+}
+
+loopmaster <- cbind(loopmaster,c(rep(keyword,nrow(loopmaster))))   ##adds keyword tag to observation set before
+
+if (count == 1) {
+  master <- loopmaster
+}
+
+master <- rbind(master, loopmaster)
+colnames(master) <- c("name", "address", "rating", "lat", "long", "type")
+print(master)      
+}
+
+write.csv(master,"master.csv")
+```
+
+Looks like we have some usable data now. Great. Let's turn it into something pretty.
+
+##Mapping
+*Mapping details...* are forthcoming.
+
+```{r mapping}
+library("ggmap")
+library("ggplot2")
+fedsq <- c(144.9691,-37.8180)
+
+theme_set(theme_bw(16))
+
+fedmap <- qmap('federation square', zoom = 17, api_key = key,
+                color = "bw", legend = "topleft")
+
+p <- fedmap +
+              geom_point(aes(x = long, y = lat,
+              colour = type, size = rating),
+              data = master, alpha = 1/2)
+
+p + geom_path()
+
+library(tidyverse)
+library(maps)
+library(geosphere)
+
+   
+lines(inter, col="slateblue", lwd=2)
+
+fedmap +
+stat_bin2d(
+aes(x = long, y = lat, colour = type,
+fill = type),
+size = .5, bins = 10, alpha = 1,
+data = master)
+
+
+fedmap +
+stat_density2d(
+aes(x = long, y = lat, fill = ..level..,
+alpha = ..level..),
+size = 2, bins = 4, data = master,
+geom = "polygon")
+
+
+library(maps)
+map("world", regions="Germany")
+set.seed(10)
+dfPoints <- data.frame(
+  long = 10 + runif(10, -2, 2),
+  lat = 50 + runif(10, -2, 2)
+  )
+points(x = dfPoints$long, y = dfPoints$lat, col = "red")
+lines(x = dfPoints$long, y = dfPoints$lat, col = "blue")
+
+p <- fedmap
+p <- p + geom_point(data=master, aes(x=long, y=lat),size=3)
+p
+p + geom_path(data=master, aes(x=long, y=lat, size=rating))
+## or....
+p + geom_line(data=master, aes(x=long, y=lat), color="black", size=1)
+
+```

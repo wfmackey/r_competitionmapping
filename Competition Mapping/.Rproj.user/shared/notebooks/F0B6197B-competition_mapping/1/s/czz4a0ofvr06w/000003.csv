@@ -1,0 +1,34 @@
+"0","library(""googleway"")
+key <- 'AIzaSyBd0Usn4qdFPCIY92EgOifNI87vxqUmy8g'
+fedsq <- c(-37.8180,144.9691)
+radius <- c(500) #radius is in meters
+rank <- c(""distance"")   #""distance"" or ""prominence""
+#Option 1: Radius and keywords
+type <- c(""Restaurant"")
+nearby.bar <- google_places(location = fedsq,
+                     keyword = type,
+                     radius = radius,
+                     rankby = rank,
+                     key = key)
+"
+"2","radius is ignored when rankby == 'distance'"
+"0","master <- cbind(nearby.bar$results$name,nearby.bar$results$geometry$location,nearby.bar$results$rating,nearby.bar$results$vicinity)"
+"0","for (loop in 1:2) {"
+"0","  print(loop)"
+"0","  nearby.bar <- google_places(location = fedsq,"
+"0","                        keyword = type,"
+"0","                        radius = radius,"
+"0","                        page_token = nearby.bar$next_page_token,"
+"0","                        key = key)"
+"0","comb <- cbind(nearby.bar$results$name,nearby.bar$results$geometry$location,nearby.bar$results$rating,nearby.bar$results$vicinity)"
+"0","master <- rbind(master, comb)"
+"0","}"
+"1","[1]"
+"1"," 1"
+"1","
+"
+"1","[1]"
+"1"," 2"
+"1","
+"
+"0","print(master)"

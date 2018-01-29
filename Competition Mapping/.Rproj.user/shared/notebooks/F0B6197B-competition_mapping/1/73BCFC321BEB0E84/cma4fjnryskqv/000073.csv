@@ -1,0 +1,4 @@
+"0","inter <- gcIntermediate(c(master$long,master$lat), fedsq, n=50, addStartEnd=TRUE, breakAtDateLine=F)        
+"
+"2","Error in .pointsToMatrix(p1) : Wrong length for a vector, should be 2
+"
